@@ -37,23 +37,6 @@
         android:onClick="finalizeRun"
         android:enabled="false" />
 
-    <TextView
-        android:text="Posisjon: NA"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/finalize_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:id="@+id/textview_latlon" />
-
-    <TextView
-        android:text="Sist oppdatert: NA"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textview_latlon_time"
-        android:layout_below="@+id/textview_latlon"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -78,14 +61,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <TextView
-        android:text="Fil: NA"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/textview_filename" />
 
     <TextView
         android:layout_width="match_parent"
@@ -99,4 +74,37 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="41dp" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/infotext"
+        android:layout_alignParentBottom="true"
+        android:paddingTop="10sp">
+
+        <TextView
+            android:text="Posisjon: NA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:id="@+id/textview_latlon" />
+
+        <TextView
+            android:text="Sist oppdatert: NA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textview_latlon_time"
+            android:layout_alignParentLeft="true" />
+
+        <TextView
+            android:text="Fil: NA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/textview_filename" />
+    </LinearLayout>
+
 </RelativeLayout>
