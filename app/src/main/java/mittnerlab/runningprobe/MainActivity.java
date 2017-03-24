@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -49,6 +50,10 @@ public class MainActivity extends AppCompatActivity implements
     private static final int MY_REQUEST_ALL_PERMISSIONS=1;
 
     private AlarmManagerBroadcastReceiver alarm_scheduler; // the thought-probe scheduler
+
+    //
+    int current_intensity_zone=0; // 0=None, 1=low, 2=medium, 3=high
+    Random rng = new Random();
 
     // location API
     private GoogleApiClient mGoogleApiClient;
@@ -69,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements
     TextView textview_latlon;
     TextView textview_latlon_time;
     TextView textview_filename;
+    TextView textview_intensity_zone;
 
     //runs without a timer by reposting this handler at the end of the runnable
     Handler timerHandler = new Handler();
@@ -83,8 +89,10 @@ public class MainActivity extends AppCompatActivity implements
             int hours = seconds/(60*60);
 
             seconds = seconds % 60;
+            minutes = minutes % 60;
 
-            textview_running_time.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+            setTimer(hours,minutes,seconds);
+
 
             timerHandler.postDelayed(this, 500);
         }
@@ -101,10 +109,15 @@ public class MainActivity extends AppCompatActivity implements
         if(intent.getExtras()!=null){
             int response1 = intent.getIntExtra("thought_probe_response1", -1);
             int response2 = intent.getIntExtra("thought_probe_response2", -1);
+            int response3 = intent.getIntExtra("thought_probe_response3", -1);
             int num_alarms = getNumAlarms();
             num_received_responses+=1;
             Log.d(TAG, String.format("onstart(): thought_probe_response1=%d, response2=%d, num_alarms=%d", response1, response2,num_alarms));
-            saveProbeResponse(response1, response2, num_alarms);
+            saveProbeResponse(response1, response2, response3, num_alarms);
+
+            // set the next alarm after user has responded to a thought probe
+            alarm_scheduler.setAlarm(getApplicationContext());
+            setRandomIntensityZone();
         }
     }
 
@@ -154,8 +167,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void updateLocationUI() {
-        textview_latlon.setText("Position: "+String.valueOf(mLastLocation.getLatitude())+", "+String.valueOf(mLastLocation.getLongitude()) );
-        textview_latlon_time.setText("Last update: "+mLastLocationUpdateTime);
+        textview_latlon.setText(getString(R.string.position)+String.valueOf(mLastLocation.getLatitude())+", "+String.valueOf(mLastLocation.getLongitude()) );
+        textview_latlon_time.setText(getString(R.string.last_update)+mLastLocationUpdateTime);
     }
     /*@Override
     public void onConnectionFailed(ConnectionResult result) {
@@ -276,9 +289,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onDestroy();
     }
 
-    private void saveProbeResponse(int response1, int response2, int num_response){
+    private void saveProbeResponse(int response1, int response2, int response3, int num_response){
         // file format is
-        // time,runtime,gps_lon,gps_lat,num_probe,num_response,response1,response2
+        // time,runtime,gps_lon,gps_lat,num_probe,num_response,response1,response2,response3
         Log.d(TAG, "saveProbeResponse(): data_filename="+data_filename);
         File file = new File(data_filename);
         Log.d(TAG, String.format("saveProbeResponse(): response1=%d, response2=%d, num_response=%d", response1, response2, num_response));
@@ -287,10 +300,17 @@ public class MainActivity extends AppCompatActivity implements
             FileWriter fw = new FileWriter(file, true); // true is for append
             String now = DateFormat.getTimeInstance().format(new Date());
             long millis = System.currentTimeMillis() - resume_time + total_duration;
-            String lat=String.valueOf(mLastLocation.getLatitude());
-            String lon=String.valueOf(mLastLocation.getLongitude());
-            fw.write(String.format("%s,%d,%s,%s,%d,%d,%d,%d\n",
-                    now, millis, lat, lon, num_received_responses,num_response,response1,response2));
+            String lat, lon;
+            if(mLastLocation!=null) {
+                lat = String.valueOf(mLastLocation.getLatitude());
+                lon = String.valueOf(mLastLocation.getLongitude());
+            } else {
+                lat = "NA";
+                lon = "NA";
+            }
+            fw.write(String.format("%s,%d,%s,%s,%d,%d,%d,%d,%d\n",
+                    now, millis, lat, lon, num_received_responses,
+                    num_response,response1,response2,response3));
             fw.close();
         } catch( IOException e){
             e.printStackTrace();
@@ -325,6 +345,9 @@ public class MainActivity extends AppCompatActivity implements
         textview_latlon = (TextView) findViewById(R.id.textview_latlon);
         textview_latlon_time = (TextView) findViewById(R.id.textview_latlon_time);
         textview_filename = (TextView) findViewById(R.id.textview_filename);
+        textview_intensity_zone = (TextView) findViewById(R.id.textview_intensity_zone);
+
+        current_intensity_zone=0;
 
         if(!isExternalStorageWritable()) {
             Toast.makeText(getApplicationContext(), "can't store data-file", Toast.LENGTH_SHORT).show();
@@ -343,6 +366,31 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+    private void setIntensityZone(int zone){
+        // zone must be one of 0,1,2,3
+        current_intensity_zone=zone;
+        if(current_intensity_zone==0){
+            textview_intensity_zone.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent));
+            textview_intensity_zone.setText("");
+        } else if(current_intensity_zone==1){
+            textview_intensity_zone.setBackgroundColor(ContextCompat.getColor(this,R.color.low_intensity));
+            textview_intensity_zone.setText(R.string.low_intensity);
+        } else if(current_intensity_zone==2){
+            textview_intensity_zone.setBackgroundColor(ContextCompat.getColor(this,R.color.medium_intensity));
+            textview_intensity_zone.setText(R.string.medium_intensity);
+        } else if(current_intensity_zone==3){
+            textview_intensity_zone.setBackgroundColor(ContextCompat.getColor(this, R.color.high_intensity));
+            textview_intensity_zone.setText(R.string.high_intensity);
+        }
+
+    }
+
+    private void setRandomIntensityZone(){
+        // randomly pick intensity zone
+        int zone=rng.nextInt(3) + 1;
+        setIntensityZone(zone);
+    }
+
     // starting or stopping a run
     public void startStopRun(View view) {
         Log.d(TAG, "startStopRun()");
@@ -357,11 +405,14 @@ public class MainActivity extends AppCompatActivity implements
         if (status.equals("pause")) { // start run
             Log.d(TAG, "starting/resuming run");
             // switch Button to be STOP button
-            start_stop_button.setText("Stop Run!");
+            start_stop_button.setText(R.string.stop_run);
             start_stop_button.setBackgroundColor( ContextCompat.getColor(getApplicationContext(), R.color.runRed) );
 
             if(start_time==0){ //------------------------ new run gets started
                 resetNumAlarms();
+
+                setRandomIntensityZone();
+
                 // start timer
                 start_time=System.currentTimeMillis();
                 resume_time=start_time;
@@ -372,9 +423,10 @@ public class MainActivity extends AppCompatActivity implements
                 SimpleDateFormat formatter=new SimpleDateFormat("yyyy_MM_dd_hh_mm");
                 String datestring=formatter.format(new Date(start_time));
                 String datadir=String.format("%s/running",
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath());
+                        getDatadir());
+
                 data_filename=String.format("%s/run_%s.csv", datadir, datestring);
-                textview_filename.setText(String.format("File: run_%s.csv", datestring));
+                textview_filename.setText(getString(R.string.file)+String.format("run_%s.csv", datestring));
                 Log.d(TAG, String.format("data_filename='%s'", data_filename));
                 File file = new File(datadir);
 
@@ -415,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
             // switch Button to be START button
-            start_stop_button.setText("Start Run!");
+            start_stop_button.setText(R.string.start_run);
             start_stop_button.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.runBlue));
 
             finalize_button.setEnabled(true);
@@ -424,15 +476,34 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    private String getDatadir(){
+        String datadir;
+
+        // API<19 does not have the DIRECTOR_DOCUMENTS variable (found on Gerit's phone)
+        if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.KITKAT) {
+            datadir=Environment.getExternalStorageDirectory() + "/Documents";
+        } else {
+            datadir=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+        }
+        return datadir;
+    }
+
     // finalize a run
     public void finalizeRun(View view) {
         Log.d(TAG, "finalizeRun()");
+        Intent intent=new Intent(this, PostRunQuestionnaire.class);
+        intent.putExtra("datafile", data_filename);
+        startActivity(intent);
+
         view.setTag("pause");
         start_time=0;
         total_duration=0;
         resume_time=0;
         data_filename="";
+        textview_filename.setText(R.string.file);
         num_received_responses=0;
+        setTimer(0,0,0);
+        setIntensityZone(0);
     }
 
     /* Checks if external storage is available for read and write */
@@ -508,6 +579,10 @@ public class MainActivity extends AppCompatActivity implements
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    private void setTimer(int hours, int minutes, int seconds){
+        textview_running_time.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
     }
 
 }

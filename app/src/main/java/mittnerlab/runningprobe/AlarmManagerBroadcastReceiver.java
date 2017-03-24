@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -45,13 +46,20 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         //keyguardLock.disableKeyguard();
 
         // play notification tone for new thought probe
+        Intent intent_sound = new Intent(context, AlarmSoundService.class);
+        context.startService(intent_sound);
+        /*
         try {
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-            r.play();
+            MediaPlayer player = MediaPlayer.create(context, notification);
+            player.setLooping(true);
+            player.start();
+            //Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+            //r.play();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        */
 
         // open or re-open thought-probe activity
         Intent ii = new Intent(context, ThoughtProbeActivity.class);
@@ -63,7 +71,8 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
         Log.d(TAG, "onReceive(): back here");
 
-        setAlarm(context);
+        // do not set alarm before user has responded
+        // setAlarm(context);
 
         //Release the lock
         wl.release();
@@ -88,7 +97,16 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         // next alarm in X seconds
         int next_alarm = rng.nextInt(alarm_sec_max - alarm_sec_min + 1) + alarm_sec_min;
         Log.d(TAG, String.format("next_alarm=%d s", next_alarm));
-        am.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+next_alarm*1000, pi);
+
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            // only for kitkat and newer versions
+            am.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+next_alarm*1000, pi);
+        } else {
+            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+next_alarm*1000, pi);
+        }
+
+        //am.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+next_alarm*1000, pi);
 
         //Toast.makeText(context, "Alarm set +10 sec", Toast.LENGTH_SHORT).show();
     }

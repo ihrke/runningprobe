@@ -45,8 +45,14 @@ public class ThoughtProbeActivity extends AppCompatActivity {
     public void submitProbe(View view){
         SeekBar seekbar1=(SeekBar) findViewById(R.id.seekBar_probe1);
         SeekBar seekbar2=(SeekBar) findViewById(R.id.seekBar_probe2);
+        SeekBar seekbar3=(SeekBar) findViewById(R.id.seekBar_probe3);
         int response1=seekbar1.getProgress();
         int response2=seekbar2.getProgress();
+        int response3=seekbar3.getProgress();
+
+        // in case the beeps are still running (phone was open at the time), stop it
+        Intent ii_alarm=new Intent(getApplicationContext(), AlarmSoundService.class);
+        stopService(ii_alarm);
 
         // store probe + meta-data
         Log.d(TAG, String.format("submitProbe(): response1=%d, response2=%d", response1, response2));
@@ -54,6 +60,7 @@ public class ThoughtProbeActivity extends AppCompatActivity {
         ii.setFlags(FLAG_ACTIVITY_REORDER_TO_FRONT); // bring the activity to front of stack
         ii.putExtra("thought_probe_response1", response1);
         ii.putExtra("thought_probe_response2", response2);
+        ii.putExtra("thought_probe_response3", response3);
         startActivity(ii);
     }
 }

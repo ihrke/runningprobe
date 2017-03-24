@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="runBlue">#0027ff</color>
     <color name="runRed">#ff0d00</color>
+    <color name="low_intensity">#45ff82</color>
+    <color name="medium_intensity">#ffa800</color>
+    <color name="high_intensity">#ff0000</color>
 </resources>

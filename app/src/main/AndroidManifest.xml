@@ -6,23 +6,34 @@
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!-- location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-feature android:name="android.hardware.location" android:required="true" />
+
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="true" />
 
     <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
     <uses-feature android:name="android.hardware.location.gps" />
 
-    <!--android:theme="@style/AppTheme">-->
+    <!-- android:theme="@style/AppTheme"> -->
     <application
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <service
+            android:name=".AlarmSoundService"
+            android:enabled="true"
+            android:exported="false" />
 
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,9 +41,27 @@
             </intent-filter>
         </activity>
         <!-- Broadcast receiver -->
-        <receiver android:name=".AlarmManagerBroadcastReceiver" />
+        <receiver
+            android:name=".AlarmManagerBroadcastReceiver"
+            android:screenOrientation="portrait" />
 
-        <activity android:name=".ThoughtProbeActivity"></activity>
+        <activity
+            android:name=".ThoughtProbeActivity"
+            android:screenOrientation="portrait" />
+
+        <receiver
+            android:name=".PhoneUnlockReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT"></action>
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".PostRunQuestionnaire"
+            android:label="@string/title_activity_post_run_questionnaire"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
     </application>
 
 </manifest>

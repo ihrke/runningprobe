@@ -11,17 +11,17 @@
     tools:context="mittnerlab.runningprobe.ThoughtProbeActivity">
 
     <TextView
-        android:text="To what degree where you thinking about something else than running?"
+        android:text="@string/probe1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/textview_instruction"
-        tools:text="To what degree where you thinking about something else than running?" />
+        tools:text="@string/probe1" />
 
     <TextView
-        android:text="not at all"
+        android:text="@string/probe1_lower"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayout"
@@ -31,7 +31,7 @@
 
     <SeekBar
         style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="5"
         android:progress="0"
@@ -43,22 +43,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <Button
-        android:text="OK"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_probe"
-        android:layout_weight="1"
-        android:onClick="submitProbe"
-        android:layout_below="@+id/seekBar_probe2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="63dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
     <TextView
-        android:text="a lot"
+        android:text="@string/probe1_upper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textview_probe1_upper"
@@ -67,7 +53,7 @@
         android:layout_alignParentEnd="true" />
 
     <TextView
-        android:text="Were your thoughts intentional or spontaneous?"
+        android:text="@string/probe2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="61dp"
@@ -88,7 +74,7 @@
 
         <SeekBar
             style="@style/Widget.AppCompat.SeekBar.Discrete"
-            android:layout_width="368dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:max="5"
             android:progress="0"
@@ -99,20 +85,76 @@
     </LinearLayout>
 
     <TextView
-        android:text="intentional"
+        android:text="@string/probe2_lower"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/seekBar_probe2"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/textView4" />
+        android:id="@+id/textview_probe2_lower" />
 
     <TextView
-        android:text="spontaneous"
+        android:text="@string/probe2_upper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView5"
         android:layout_below="@+id/seekBar_probe2"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+
+    <TextView
+        android:text="@string/probe3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="61dp"
+        android:id="@+id/textview_probe3"
+        android:layout_below="@+id/textview_probe2_lower"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <SeekBar
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="5"
+        android:progress="0"
+        android:layout_below="@+id/textview_probe3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="23dp"
+        android:id="@+id/seekBar_probe3"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="@string/probe3_lower"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/seekBar_probe3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/textview_probe3_lower" />
+
+    <TextView
+        android:text="@string/probe3_upper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textview_probe3_upper"
+        android:layout_below="@+id/seekBar_probe3"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+
+    <Button
+        android:text="OK"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_probe"
+        android:layout_weight="1"
+        android:onClick="submitProbe"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="45dp" />
 </RelativeLayout>
