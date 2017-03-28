@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements
                 LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
                 Log.d(TAG, "startLocationUpdates(): successfully started location updates");
                 location_updates_started = true;
-            } catch (final SecurityException ex) {
+            } catch (Exception ex) {
                 Log.d(TAG, "startLocationUpdates(): failed to start location updates");
                 location_updates_started = false;
             }
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void saveProbeResponse(int response1, int response2, int response3, int num_response){
         // file format is
-        // time,runtime,gps_lon,gps_lat,num_probe,num_response,response1,response2,response3
+        // time,runtime,gps_lon,gps_lat,intensity,num_probe,num_response,response1,response2,response3
         Log.d(TAG, "saveProbeResponse(): data_filename="+data_filename);
         File file = new File(data_filename);
         Log.d(TAG, String.format("saveProbeResponse(): response1=%d, response2=%d, num_response=%d", response1, response2, num_response));
@@ -308,8 +308,8 @@ public class MainActivity extends AppCompatActivity implements
                 lat = "NA";
                 lon = "NA";
             }
-            fw.write(String.format("%s,%d,%s,%s,%d,%d,%d,%d,%d\n",
-                    now, millis, lat, lon, num_received_responses,
+            fw.write(String.format("%s,%d,%s,%s,%d,%d,%d,%d,%d,%d\n",
+                    now, millis, lat, lon, current_intensity_zone, num_received_responses,
                     num_response,response1,response2,response3));
             fw.close();
         } catch( IOException e){
@@ -347,8 +347,6 @@ public class MainActivity extends AppCompatActivity implements
         textview_filename = (TextView) findViewById(R.id.textview_filename);
         textview_intensity_zone = (TextView) findViewById(R.id.textview_intensity_zone);
 
-        current_intensity_zone=0;
-
         if(!isExternalStorageWritable()) {
             Toast.makeText(getApplicationContext(), "can't store data-file", Toast.LENGTH_SHORT).show();
         }
@@ -363,6 +361,43 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         checkAndRequestPermissions();
+
+        // new instance
+        if(savedInstanceState==null) {
+            current_intensity_zone = 0;
+        } else {
+            Log.d(TAG, "onCreate(): restore from savedInstanceState");
+            // saved instance restored
+            start_time     = savedInstanceState.getLong("start_time");
+            resume_time    = savedInstanceState.getLong("resume_time");
+            total_duration = savedInstanceState.getLong("total_duration");
+            num_received_responses = savedInstanceState.getInt("num_received_responses");
+            current_intensity_zone = savedInstanceState.getInt("current_intensity_zone");
+            data_filename = savedInstanceState.getString("data_filename");
+            setIntensityZone(current_intensity_zone);
+            startLocationUpdates(true);
+        }
+
+    }
+
+    // save instance variables
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, "onsSaveInstanceState()");
+        // TODO: continue save/restore MainActivity
+        if(start_time>0){ // user is currently in a run
+            savedInstanceState.putLong("start_time", start_time);
+            savedInstanceState.putLong("resume_time", resume_time);
+            savedInstanceState.putLong("total_duration", total_duration);
+            savedInstanceState.putInt("num_received_responses", num_received_responses);
+            savedInstanceState.putInt("current_intensity_zone", current_intensity_zone);
+            savedInstanceState.putString("data_filename", data_filename);
+        }
+
+
+        //savedInstanceState.putString(STATE_USER, mUser);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
 
 
@@ -387,7 +422,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private void setRandomIntensityZone(){
         // randomly pick intensity zone
-        int zone=rng.nextInt(3) + 1;
+        //int zone=rng.nextInt(3) + 1;
+        int zone= (( current_intensity_zone+rng.nextInt(2) ) % 3)+1;
+        Log.d(TAG, String.format("setRandomIntensityZone(): going from %d to %d", current_intensity_zone,zone));
         setIntensityZone(zone);
     }
 
